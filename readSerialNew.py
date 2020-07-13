@@ -6,8 +6,9 @@ import sys
 import numpy as np
 sw = 0 #a8
 swRaw = 0
-swMin = 512 #right turn
+swMin = 501 #right turn
 swMax = 1017 #left turn
+swMid = 662
 
 gasP = 0#higher half of a9
 breakP = 0#lower half of a9
@@ -32,7 +33,7 @@ R2Raw = 0
 R2 = False #A11
 R2T = 750 #pressed is more than this
 
-
+buttSum = 0
 
 ser = serial.Serial('COM7', 250000, timeout=0)
 j = pyvjoy.VJoyDevice(1)
@@ -75,23 +76,52 @@ while 1:
                     R1 = R1Raw > R1T
                     R2 = R2Raw > R2T
 
+                    buttSum = 0
+
+                    buttSum += 1 * L1
+                    buttSum += 2 * L2
+                    buttSum += 4 * R1
+                    buttSum += 8 * R2
+
                     if abs(gasBreakRaw - breakGasMid) > 3:
                         if(gasBreakRaw < breakGasMid):
                             gasPRaw = 0
-                            breakPRaw = breakGasMid - gasBreakRaw #0 to 150
+                            breakP = (breakGasMid - gasBreakRaw) * 213 #0 to 150
                         else:
                             breakPRaw = 0
-                            gasPRaw = gasBreakRaw - breakGasMid #0 to 298
+                            gasP = (gasBreakRaw - breakGasMid) * 107 #0 to 298
                     else:
-                        gasPRaw = 0
-                        breakPRaw = 0
+                        gasP = 0
+                        breakP = 0
 
-                    print(gasPRaw, breakPRaw, swRaw, L1, L2, R1, R2)
+                    if(abs(swRaw - swMid) > 2):
+                        if(swRaw > swMid):
+                            swTemp = swMax - swRaw
+                            sw = swTemp * 47
+                        else:
+                            swTemp = swMid - swRaw
+                            sw = (swTemp * 99) + 16000
+                    else:
+                        sw = 16000
+
+
+                    #sw calc 0 to 16000 == 1007 to 670
+                    #1007 - raw gives 0 to 337
+                    #multiple by 47
+                    #16000 to 32000 == 670 to 512
+                    #670- raw givces 0 to 158
+                    # that *102 +_ 16000
+
+
+
+                    print(gasP, breakP, sw, L1, L2, R1, R2)
                     
-                    j.data.wAxisZ = int(0)
-                    j.data.wAxisX = int(0)
-                    j.data.wAxisY = int(0)
-                    
+                    j.data.wAxisZ = int(sw)
+                    j.data.wAxisX = int(gasP)
+                    j.data.wAxisY = int(breakP)
+
+                    j.data.lButtons = buttSum
+
                     j.update()
         except: 
                 print("error")
