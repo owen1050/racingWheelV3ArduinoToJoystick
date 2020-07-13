@@ -1,0 +1,12 @@
+a2 going low is L2 pressed (def 900 goes to 4)
+a1 going low is L1 pressed (def 900 goes to 4)
+a11 going 1017 is R2 pressed (24 def)
+A10 going 1017 is R1 pressed (680 def)
+A8 is wheel left is 1007 right is 512 mid is 670
+
+A8 jumps to left and righ with dpad
+
+dbac brings a 0123 down (900 to 4)
+
+
+a9 def 733 - break all the way down 587, gas all the way doen 1018
